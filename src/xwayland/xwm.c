@@ -363,22 +363,22 @@ read_properties(struct wlc_xwm *xwm, struct wlc_x11_window *win, const xcb_atom_
                                       |  WLC_BIT_PROP_MOVEABLE
                                       |  WLC_BIT_PROP_RESIZEABLE
                                       |  WLC_BIT_PROP_HAS_TITLE;
-                     if (hints->functions & MWM_DECOR_MAXIMIZE)
+                     if (hints->decorations & MWM_DECOR_MAXIMIZE)
                         view->data.props &= ~WLC_BIT_PROP_MAXIMIZABLE;
-                     if (hints->functions & MWM_DECOR_MINIMIZE)
+                     if (hints->decorations & MWM_DECOR_MINIMIZE)
                         view->data.props &= ~WLC_BIT_PROP_MINIMIZABLE;
-                     if (hints->functions & MWM_DECOR_RESIZEH)
+                     if (hints->decorations & MWM_DECOR_RESIZEH)
                         view->data.props &= ~WLC_BIT_PROP_RESIZEABLE;
-                     if (hints->functions & MWM_DECOR_TITLE)
+                     if (hints->decorations & MWM_DECOR_TITLE)
                         view->data.props &= ~WLC_BIT_PROP_HAS_TITLE;
                } else {
-                  if (hints->functions & MWM_DECOR_MAXIMIZE)
+                  if (hints->decorations & MWM_DECOR_MAXIMIZE)
                      view->data.props |= WLC_BIT_PROP_MAXIMIZABLE;
-                  if (hints->functions & MWM_DECOR_MINIMIZE)
+                  if (hints->decorations & MWM_DECOR_MINIMIZE)
                      view->data.props |= WLC_BIT_PROP_MINIMIZABLE;
-                  if (hints->functions & MWM_DECOR_RESIZEH)
+                  if (hints->decorations & MWM_DECOR_RESIZEH)
                      view->data.props |= WLC_BIT_PROP_RESIZEABLE;
-                  if (hints->functions & MWM_DECOR_TITLE)
+                  if (hints->decorations & MWM_DECOR_TITLE)
                      view->data.props |= WLC_BIT_PROP_HAS_TITLE;
                }
             }
