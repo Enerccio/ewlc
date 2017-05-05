@@ -14,10 +14,10 @@
 #include "macros.h"
 #include "xwm.h"
 #include "xwayland.h"
-#include "xmotif.h"
 #include "compositor/compositor.h"
 #include "compositor/view.h"
 #include "resources/types/surface.h"
+#include "xmotif.h"
 
 enum atom_name {
    WL_SURFACE_ID,

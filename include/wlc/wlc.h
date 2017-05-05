@@ -169,6 +169,20 @@ enum wlc_x11_window_type {
    WLC_BIT_X11_WINTYPE_DESKTOP = 1<<8
 };
 
+enum wlc_view_properties {
+   WLC_BIT_PROP_CLOSEABLE = 1<<0,
+   WLC_BIT_PROP_RESIZEABLE = 1<<1,
+   WLC_BIT_PROP_MINIMIZABLE = 1<<2,
+   WLC_BIT_PROP_MAXIMIZABLE = 1<<3,
+   WLC_BIT_PROP_MOVEABLE = 1<<4,
+   WLC_BIT_PROP_HAS_TITLE = 1<<5,
+};
+
+#define WLC_VIEW_PROPERTIES_ALL \
+   (WLC_BIT_PROP_CLOSEABLE | WLC_BIT_PROP_RESIZEABLE | \
+    WLC_BIT_PROP_MINIMIZABLE | WLC_BIT_PROP_MAXIMIZABLE | \
+    WLC_BIT_PROP_MOVEABLE | WLC_BIT_PROP_HAS_TITLE)
+
 /** State of keyboard modifiers in various functions. */
 struct wlc_modifiers {
    uint32_t leds, mods;
@@ -413,6 +427,8 @@ uint32_t wlc_view_get_mask(wlc_handle view);
 
 /** Set visibility bitmask. */
 void wlc_view_set_mask(wlc_handle view, uint32_t mask);
+
+enum wlc_view_properties wlc_view_get_properties(wlc_handle view);
 
 /** Get current geometry. (what client sees) */
 const struct wlc_geometry* wlc_view_get_geometry(wlc_handle view);
