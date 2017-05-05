@@ -838,3 +838,20 @@ wlc_view(struct wlc_view *view)
    assert(!view->state.created);
    return chck_iter_pool(&view->wl_state, 8, 0, sizeof(uint32_t));
 }
+
+enum wlc_x11_window_type 
+wlc_view_x11_get_type(wlc_handle handle) {
+   struct wlc_view *view;
+   if(!(view = convert_from_wlc_handle(handle, "view")))
+      return WLC_BIT_X11_WINTYPE_INVALID;
+   return wlc_view_x11_get_type_ptr(view);
+}
+
+enum wlc_x11_window_type 
+wlc_view_x11_get_type_ptr(struct wlc_view *view) {
+   assert(view);
+   if (!(is_x11_view(view))) {
+      return WLC_BIT_X11_WINTYPE_INVALID;
+   }
+   return view->x11.window_type;
+}

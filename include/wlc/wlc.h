@@ -156,6 +156,19 @@ enum wlc_positioner_constraint_adjustment_bit {
    WLC_BIT_CONSTRAINT_ADJUSTMENT_RESIZE_Y = 1<<5
 };
 
+/** x11 window type */
+enum wlc_x11_window_type {
+   WLC_BIT_X11_WINTYPE_INVALID = 0,
+   WLC_BIT_X11_WINTYPE_DOCK = 1<<1,
+   WLC_BIT_X11_WINTYPE_TOOLBAR = 1<<2,
+   WLC_BIT_X11_WINTYPE_MENU = 1<<3,
+   WLC_BIT_X11_WINTYPE_UTILITY = 1<<4,
+   WLC_BIT_X11_WINTYPE_SPLASH = 1<<5,
+   WLC_BIT_X11_WINTYPE_DIALOG = 1<<6,
+   WLC_BIT_X11_WINTYPE_NORMAL = 1<<7,
+   WLC_BIT_X11_WINTYPE_DESKTOP = 1<<8
+};
+
 /** State of keyboard modifiers in various functions. */
 struct wlc_modifiers {
    uint32_t leds, mods;
@@ -453,7 +466,6 @@ WLC_NONULL void wlc_view_set_geometry(wlc_handle view, uint32_t edges, const str
 /** Get type bitfield. */
 uint32_t wlc_view_get_type(wlc_handle view);
 
-
 /**
  * Returns true if xwayland window is deletable (support WM_DELETE_WINDOW protocol).
  * This kind of window should be closed using wlc_x11_delete_window.
@@ -470,6 +482,9 @@ void wlc_x11_window_delete(uint32_t window);
  * Kills xwayland window unconditionally.
  */
 void wlc_x11_window_kill(uint32_t window);
+
+/** returns type of this x11 view, or invalid if not x11 view */
+enum wlc_x11_window_type wlc_view_x11_get_type(wlc_handle view);
 
 /** Set type bit. Toggle indicates whether it is set or not. */
 void wlc_view_set_type(wlc_handle view, enum wlc_view_type_bit type, bool toggle);

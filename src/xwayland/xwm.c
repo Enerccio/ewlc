@@ -54,6 +54,18 @@ enum atom_name {
    NET_WM_WINDOW_TYPE_COMBO,
    NET_WM_WINDOW_TYPE_DND,
    NET_WM_WINDOW_TYPE_NORMAL,
+   NET_WM_ACTION_CLOSE,
+   NET_WM_ACTION_ABOVE,
+   NET_WM_ACTION_BELOW,
+   NET_WM_ACTION_FULLSCREEN,
+   NET_WM_ACTION_MOVE,
+   NET_WM_ACTION_RESIZE,
+   NET_WM_ACTION_MAXIMIZE_HORZ,
+   NET_WM_ACTION_MAXIMIZE_VERT,
+   NET_WM_ACTION_SHADE,
+   NET_WM_ACTION_MINIMIZE,
+   NET_WM_ACTION_CHANGE_DESKTOP,
+   NET_WM_ACTION_STICK,
    ATOM_LAST
 };
 
@@ -247,6 +259,7 @@ read_properties(struct wlc_xwm *xwm, struct wlc_x11_window *win, const xcb_atom_
          // Window type
          view->type &= ~WLC_BIT_UNMANAGED | ~WLC_BIT_SPLASH | ~WLC_BIT_MODAL;
          xcb_atom_t *atoms = xcb_get_property_value(reply);
+         view->x11.window_type = WLC_BIT_X11_WINTYPE_INVALID;
          for (uint32_t i = 0; i < reply->value_len; ++i) {
             if (atoms[i] == x11.atoms[NET_WM_WINDOW_TYPE_TOOLTIP] ||
                   atoms[i] == x11.atoms[NET_WM_WINDOW_TYPE_UTILITY] ||
@@ -263,6 +276,23 @@ read_properties(struct wlc_xwm *xwm, struct wlc_x11_window *win, const xcb_atom_
                wlc_view_set_type_ptr(view, WLC_BIT_SPLASH, true);
                wlc_view_set_type_ptr(view, WLC_BIT_UNMANAGED, true);
             }
+            
+            if (atoms[i] == x11.atoms[NET_WM_WINDOW_TYPE_DESKTOP])
+               view->x11.window_type |= WLC_BIT_X11_WINTYPE_DESKTOP; 
+            if (atoms[i] == x11.atoms[NET_WM_WINDOW_TYPE_DOCK])
+               view->x11.window_type |= WLC_BIT_X11_WINTYPE_DOCK; 
+            if (atoms[i] == x11.atoms[NET_WM_WINDOW_TYPE_TOOLBAR])
+               view->x11.window_type |= WLC_BIT_X11_WINTYPE_TOOLBAR; 
+            if (atoms[i] == x11.atoms[NET_WM_WINDOW_TYPE_MENU])
+               view->x11.window_type |= WLC_BIT_X11_WINTYPE_MENU; 
+            if (atoms[i] == x11.atoms[NET_WM_WINDOW_TYPE_UTILITY])
+               view->x11.window_type |= WLC_BIT_X11_WINTYPE_UTILITY; 
+            if (atoms[i] == x11.atoms[NET_WM_WINDOW_TYPE_SPLASH])
+               view->x11.window_type |= WLC_BIT_X11_WINTYPE_SPLASH; 
+            if (atoms[i] == x11.atoms[NET_WM_WINDOW_TYPE_DIALOG])
+               view->x11.window_type |= WLC_BIT_X11_WINTYPE_DIALOG; 
+            if (atoms[i] == x11.atoms[NET_WM_WINDOW_TYPE_NORMAL])
+               view->x11.window_type |= WLC_BIT_X11_WINTYPE_NORMAL; 
          }
          wlc_dlog(WLC_DBG_XWM, "NET_WM_WINDOW_TYPE: %u", view->type);
       } else if (props[i] == x11.atoms[WM_PROTOCOLS]) {
@@ -796,6 +826,19 @@ x11_init(void)
       { "_NET_WM_WINDOW_TYPE_COMBO", NET_WM_WINDOW_TYPE_COMBO },
       { "_NET_WM_WINDOW_TYPE_DND", NET_WM_WINDOW_TYPE_DND },
       { "_NET_WM_WINDOW_TYPE_NORMAL", NET_WM_WINDOW_TYPE_NORMAL },
+      
+      { "_NET_WM_ACTION_CLOSE", NET_WM_ACTION_CLOSE },
+      { "_NET_WM_ACTION_ABOVE", NET_WM_ACTION_ABOVE },
+      { "_NET_WM_ACTION_BELOW", NET_WM_ACTION_BELOW },
+      { "_NET_WM_ACTION_FULLSCREEN", NET_WM_ACTION_FULLSCREEN },
+      { "_NET_WM_ACTION_MOVE", NET_WM_ACTION_MOVE },
+      { "_NET_WM_ACTION_RESIZE", NET_WM_ACTION_RESIZE },
+      { "_NET_WM_ACTION_MAXIMIZE_HORZ", NET_WM_ACTION_MAXIMIZE_HORZ },
+      { "_NET_WM_ACTION_MAXIMIZE_VERT", NET_WM_ACTION_MAXIMIZE_VERT },
+      { "_NET_WM_ACTION_SHADE", NET_WM_ACTION_SHADE },
+      { "_NET_WM_ACTION_MINIMIZE", NET_WM_ACTION_MINIMIZE },
+      { "_NET_WM_ACTION_CHANGE_DESKTOP", NET_WM_ACTION_CHANGE_DESKTOP },
+      { "_NET_WM_ACTION_STICK", NET_WM_ACTION_STICK },
    };
 
    xcb_intern_atom_cookie_t atom_cookies[ATOM_LAST];
