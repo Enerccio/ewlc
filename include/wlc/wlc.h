@@ -170,12 +170,12 @@ enum wlc_x11_window_type {
 };
 
 enum wlc_view_properties {
-   WLC_BIT_PROP_CLOSEABLE = 1<<0,
-   WLC_BIT_PROP_RESIZEABLE = 1<<1,
-   WLC_BIT_PROP_MINIMIZABLE = 1<<2,
-   WLC_BIT_PROP_MAXIMIZABLE = 1<<3,
-   WLC_BIT_PROP_MOVEABLE = 1<<4,
-   WLC_BIT_PROP_HAS_TITLE = 1<<5,
+   WLC_BIT_PROP_CLOSEABLE = 1<<0, // view can be closed
+   WLC_BIT_PROP_RESIZEABLE = 1<<1, // view can be resized
+   WLC_BIT_PROP_MINIMIZABLE = 1<<2, // view can be minimized
+   WLC_BIT_PROP_MAXIMIZABLE = 1<<3, // view can be maximized
+   WLC_BIT_PROP_MOVEABLE = 1<<4, // view can be moved
+   WLC_BIT_PROP_HAS_TITLE = 1<<5, // view has title 
 };
 
 #define WLC_VIEW_PROPERTIES_ALL \
@@ -428,6 +428,11 @@ uint32_t wlc_view_get_mask(wlc_handle view);
 /** Set visibility bitmask. */
 void wlc_view_set_mask(wlc_handle view, uint32_t mask);
 
+/**
+ * Returs view properties.
+ * For wayland created views, it is equal to WLC_VIEW_PROPERTIES_ALL
+ * For x11, motif is queried and properties are set up based on it
+ */
 enum wlc_view_properties wlc_view_get_properties(wlc_handle view);
 
 /** Get current geometry. (what client sees) */

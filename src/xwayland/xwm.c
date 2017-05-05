@@ -318,6 +318,52 @@ read_properties(struct wlc_xwm *xwm, struct wlc_x11_window *win, const xcb_atom_
                    wlc_view_set_type_ptr(view, WLC_BIT_BORDERLESS, true);
                }
             }
+            
+            // parsing properties from motif
+            view->data.props = 0; // sentinel 0
+            
+            if (hints->flags & MWM_HINTS_FUNCTIONS) {
+               if (hints->functions & MWM_FUNC_ALL) {
+                     view->data.props |= WLC_BIT_PROP_CLOSEABLE 
+                                      |  WLC_BIT_PROP_MAXIMIZABLE
+                                      |  WLC_BIT_PROP_MINIMIZABLE
+                                      |  WLC_BIT_PROP_MOVEABLE
+                                      |  WLC_BIT_PROP_RESIZEABLE;
+               } else {
+                  if (hints->functions & MWM_FUNC_CLOSE)
+                     view->data.props |= WLC_BIT_PROP_CLOSEABLE;
+                  if (hints->functions & MWM_FUNC_MAXIMIZE)
+                     view->data.props |= WLC_BIT_PROP_MAXIMIZABLE;
+                  if (hints->functions & MWM_FUNC_MINIMIZE)
+                     view->data.props |= WLC_BIT_PROP_MINIMIZABLE;
+                  if (hints->functions & MWM_FUNC_MOVE)
+                     view->data.props |= WLC_BIT_PROP_MOVEABLE;
+                  if (hints->functions & MWM_FUNC_RESIZE)
+                     view->data.props |= WLC_BIT_PROP_RESIZEABLE;
+               }
+            }
+            
+            if (hints->flags & MWM_HINTS_DECORATIONS) {
+               if (hints->functions & MWM_DECOR_ALL) {
+                     view->data.props |= WLC_BIT_PROP_CLOSEABLE 
+                                      |  WLC_BIT_PROP_MAXIMIZABLE
+                                      |  WLC_BIT_PROP_MINIMIZABLE
+                                      |  WLC_BIT_PROP_MOVEABLE
+                                      |  WLC_BIT_PROP_RESIZEABLE
+                                      |  WLC_BIT_PROP_HAS_TITLE;
+               } else {
+                  if (hints->functions & MWM_DECOR_MAXIMIZE)
+                     view->data.props |= WLC_BIT_PROP_MAXIMIZABLE;
+                  if (hints->functions & MWM_DECOR_MINIMIZE)
+                     view->data.props |= WLC_BIT_PROP_MINIMIZABLE;
+                  if (hints->functions & MWM_DECOR_RESIZEH)
+                     view->data.props |= WLC_BIT_PROP_RESIZEABLE;
+                  if (hints->functions & MWM_DECOR_TITLE)
+                     view->data.props |= WLC_BIT_PROP_HAS_TITLE;
+               }
+            }
+            
+            view->x11.has_properties = true;
          }
          wlc_dlog(WLC_DBG_XWM, "MOTIF_WM_HINTS");
       }
@@ -426,6 +472,12 @@ link_surface(struct wlc_xwm *xwm, struct wlc_x11_window *win, struct wl_resource
       wlc_view_set_type_ptr(view, WLC_BIT_BORDERLESS, true);
    }
    get_properties(xwm, &view->x11);
+   
+   if (!view->x11.has_properties) {
+      // no motif, by default put all properties
+      // TODO: other ways of getting the properties?
+      view->data.props = WLC_VIEW_PROPERTIES_ALL;
+   }
 
    if (!wlc_geometry_equals(&geometry, &wlc_geometry_zero))
       wlc_view_set_geometry_ptr(view, 0, &geometry);

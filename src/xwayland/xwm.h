@@ -20,6 +20,9 @@ struct wlc_x11_window {
    bool hidden; // HACK: used by output.c to hide invisible windows
    bool paired; // is this window paired to wlc_view?
    enum wlc_x11_window_type window_type;
+   bool has_properties; // whether x11 window has correctly read and 
+      // assigned properties. If this is false after reading properties,
+      // view will get all properties by default
 };
 
 WLC_NONULL static inline bool
