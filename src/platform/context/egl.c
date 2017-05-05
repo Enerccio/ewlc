@@ -561,30 +561,43 @@ get_proc_address(struct ctx *context, const char *procname)
    return eglGetProcAddress(procname);
 }
 
-static EGLBoolean
-query_buffer(struct ctx *context, struct wl_resource *buffer, EGLint attribute, EGLint *value)
+static bool
+query_buffer(struct ctx *context, struct wl_resource *buffer, struct wlc_query_buffer_data *data)
 {
    assert(context);
-   if (context->api.eglQueryWaylandBufferWL)
-      return EGL_CALL(context->api.eglQueryWaylandBufferWL(context->display, buffer, attribute, value));
+   if (context->api.eglQueryWaylandBufferWL) {
+      assert(strcmp(data->identifier, BACKEND_IDENTIFIER_EGL) == 0); // must be egl backend
+      struct wlc_egl_query_buffer_data *args = (struct wlc_egl_query_buffer_data *)data;
+      
+      return EGL_CALL(context->api.eglQueryWaylandBufferWL(context->display, 
+         buffer, args->attribute, args->value));
+   }
    return EGL_FALSE;
 }
 
-static EGLImageKHR
-create_image(struct ctx *context, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list)
+static void*
+create_image(struct ctx *context, struct wlc_create_image_data *data)
 {
    assert(context);
-   if (context->api.eglCreateImageKHR)
-      return EGL_CALL(context->api.eglCreateImageKHR(context->display, context->context, target, buffer, attrib_list));
+   if (context->api.eglCreateImageKHR) {
+      assert(strcmp(data->identifier, BACKEND_IDENTIFIER_EGL) == 0); // must be egl backend
+      struct wlc_egl_create_image_data *args = (struct wlc_egl_create_image_data *)data;
+      
+      return (void*)EGL_CALL(context->api.eglCreateImageKHR(context->display, context->context, 
+         args->target, args->buffer, args->attrib_list));
+   }
    return NULL;
 }
 
-static EGLBoolean
-destroy_image(struct ctx *context, EGLImageKHR image)
+static bool
+destroy_image(struct ctx *context, struct wlc_destroy_image_data *data)
 {
-   assert(context);
-   if (context->api.eglDestroyImageKHR)
-      return EGL_CALL(context->api.eglDestroyImageKHR(context->display, image));
+   assert(context && data);
+   if (context->api.eglDestroyImageKHR) {
+      assert(strcmp(data->identifier, BACKEND_IDENTIFIER_EGL) == 0); // must be egl backend
+      return EGL_CALL(context->api.eglDestroyImageKHR(context->display, 
+         ((struct wlc_egl_destroy_image_data*)data)->image));
+   }
    return EGL_FALSE;
 }
 

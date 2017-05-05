@@ -3,6 +3,7 @@
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
+#include <wlc/wlc-backend-egl.h>
 
 struct wlc_context_api;
 struct wlc_backend_surface;
