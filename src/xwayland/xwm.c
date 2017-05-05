@@ -324,11 +324,22 @@ read_properties(struct wlc_xwm *xwm, struct wlc_x11_window *win, const xcb_atom_
             
             if (hints->flags & MWM_HINTS_FUNCTIONS) {
                if (hints->functions & MWM_FUNC_ALL) {
+                     // if this is set, all rest will be negatives 
                      view->data.props |= WLC_BIT_PROP_CLOSEABLE 
                                       |  WLC_BIT_PROP_MAXIMIZABLE
                                       |  WLC_BIT_PROP_MINIMIZABLE
                                       |  WLC_BIT_PROP_MOVEABLE
                                       |  WLC_BIT_PROP_RESIZEABLE;
+                     if (hints->functions & MWM_FUNC_CLOSE)
+                        view->data.props &= ~WLC_BIT_PROP_CLOSEABLE;
+                     if (hints->functions & MWM_FUNC_MAXIMIZE)
+                        view->data.props &= ~WLC_BIT_PROP_MAXIMIZABLE;
+                     if (hints->functions & MWM_FUNC_MINIMIZE)
+                        view->data.props &= ~WLC_BIT_PROP_MINIMIZABLE;
+                     if (hints->functions & MWM_FUNC_MOVE)
+                        view->data.props &= ~WLC_BIT_PROP_MOVEABLE;
+                     if (hints->functions & MWM_FUNC_RESIZE)
+                        view->data.props &= ~WLC_BIT_PROP_RESIZEABLE;
                } else {
                   if (hints->functions & MWM_FUNC_CLOSE)
                      view->data.props |= WLC_BIT_PROP_CLOSEABLE;
@@ -345,12 +356,21 @@ read_properties(struct wlc_xwm *xwm, struct wlc_x11_window *win, const xcb_atom_
             
             if (hints->flags & MWM_HINTS_DECORATIONS) {
                if (hints->functions & MWM_DECOR_ALL) {
+                     // if this is set, all rest will be negatives 
                      view->data.props |= WLC_BIT_PROP_CLOSEABLE 
                                       |  WLC_BIT_PROP_MAXIMIZABLE
                                       |  WLC_BIT_PROP_MINIMIZABLE
                                       |  WLC_BIT_PROP_MOVEABLE
                                       |  WLC_BIT_PROP_RESIZEABLE
                                       |  WLC_BIT_PROP_HAS_TITLE;
+                     if (hints->functions & MWM_DECOR_MAXIMIZE)
+                        view->data.props &= ~WLC_BIT_PROP_MAXIMIZABLE;
+                     if (hints->functions & MWM_DECOR_MINIMIZE)
+                        view->data.props &= ~WLC_BIT_PROP_MINIMIZABLE;
+                     if (hints->functions & MWM_DECOR_RESIZEH)
+                        view->data.props &= ~WLC_BIT_PROP_RESIZEABLE;
+                     if (hints->functions & MWM_DECOR_TITLE)
+                        view->data.props &= ~WLC_BIT_PROP_HAS_TITLE;
                } else {
                   if (hints->functions & MWM_DECOR_MAXIMIZE)
                      view->data.props |= WLC_BIT_PROP_MAXIMIZABLE;
