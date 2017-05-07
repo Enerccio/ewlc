@@ -1,4 +1,4 @@
-This is an official fork of https://github.com/Cloudef/wlc which is kept intact until sway changes to different library.
+This is an official fork of https://github.com/Cloudef/wlc which was done due to the fact that wlc will be abandoned in the near future when sway will finish their replacement.
 
 :IRC: #orbment @ freenode
 :Build: |build|_
