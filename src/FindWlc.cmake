@@ -24,14 +24,14 @@
 #=============================================================================
 
 include(FeatureSummary)
-set_package_properties(wlc PROPERTIES
-   URL "https://github.com/Cloudef/wlc/"
-   DESCRIPTION "Wayland compositor library")
+set_package_properties(ewlc PROPERTIES
+   URL "https://github.com/Enerccio/ewlc/"
+   DESCRIPTION "Wayland compositor library - extended")
 
 find_package(PkgConfig)
-pkg_check_modules(PC_WLC QUIET wlc)
+pkg_check_modules(PC_WLC QUIET ewlc)
 find_path(WLC_INCLUDE_DIRS NAMES wlc/wlc.h HINTS ${PC_WLC_INCLUDE_DIRS})
-find_library(WLC_LIBRARIES NAMES wlc HINTS ${PC_WLC_LIBRARY_DIRS})
+find_library(WLC_LIBRARIES NAMES ewlc HINTS ${PC_WLC_LIBRARY_DIRS})
 
 set(WLC_DEFINITIONS ${PC_WLC_CFLAGS_OTHER})
 
