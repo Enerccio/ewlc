@@ -4,10 +4,10 @@ libdir=${exec_prefix}/@CMAKE_INSTALL_LIBDIR@
 includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
 
 Name: @PROJECT_NAME@
-Description: Wayland compositor library
+Description: Wayland compositor library - extended
 Version: @PROJECT_VERSION@
 Requires: xkbcommon libinput
 Requires.private: pixman-1 libudev wayland-server
-Libs: -L${libdir} -lwlc
+Libs: -L${libdir} -lewlc
 Libs.private: -lm -ldl
 Cflags: -I${includedir}

@@ -1,5 +1,5 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
-PROJECT(wlc VERSION 0.0.8 LANGUAGES C)
+PROJECT(ewlc VERSION 0.0.9 LANGUAGES C)
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${PROJECT_SOURCE_DIR}/CMake")
 
 # Subprojects
@@ -25,9 +25,9 @@ include(test)
 # Options
 OPTION(WLC_X11_SUPPORT "Build X11 backend and XWayland support" ON)
 OPTION(WLC_WAYLAND_BACKEND_SUPPORT "Build Wayland backend" ON)
-OPTION(WLC_BUILD_STATIC "Build wlc as static library" OFF)
-OPTION(WLC_BUILD_EXAMPLES "Build wlc examples" ON)
-OPTION(WLC_BUILD_TESTS "Build wlc tests" ON)
+OPTION(WLC_BUILD_STATIC "Build ewlc as static library" OFF)
+OPTION(WLC_BUILD_EXAMPLES "Build ewlc examples" ON)
+OPTION(WLC_BUILD_TESTS "Build ewlc tests" ON)
 
 add_feature_info(WaylandBackend WLC_WAYLAND_BACKEND_SUPPORT "Compile Wayland backend")
 add_feature_info(Static WLC_BUILD_STATIC "Compile as static library")
@@ -41,7 +41,7 @@ find_package(Pixman REQUIRED)
 find_package(XKBCommon REQUIRED)
 find_package(Udev REQUIRED)
 find_package(LibInput REQUIRED)
-find_package(WaylandProtocols REQUIRED)
+find_package(WaylandProtocols)
 
 if (WLC_X11_SUPPORT)
     find_package(X11 REQUIRED COMPONENTS X11-xcb Xfixes)
