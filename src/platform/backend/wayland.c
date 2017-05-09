@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
 #include "internal.h"
 #include "macros.h"
 #include "wayland.h"

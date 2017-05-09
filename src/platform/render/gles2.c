@@ -485,10 +485,15 @@ static void
 surface_flush_images(struct wlc_context *context, struct wlc_surface *surface)
 {
    assert(surface);
+   
+   struct wlc_egl_destroy_image_data ddata;
+   ddata.id.identifier = BACKEND_IDENTIFIER_EGL;
 
    for (GLuint i = 0; i < 3; ++i) {
-      if (surface->images[i])
-         wlc_context_destroy_image(context, surface->images[i]);
+      if (surface->images[i]) {
+         ddata.image = surface->images[i];
+         wlc_context_destroy_image(context, &ddata.id);
+      }
    }
 
    memset(surface->images, 0, sizeof(surface->images));
@@ -572,9 +577,17 @@ egl_attach(struct ctx *context, struct wlc_context *ectx, struct wlc_surface *su
    }
 
    buffer->legacy_buffer = convert_to_wl_resource(buffer, "buffer");
-   wlc_context_query_buffer(ectx, buffer->legacy_buffer, EGL_WIDTH, (EGLint*)&buffer->size.w);
-   wlc_context_query_buffer(ectx, buffer->legacy_buffer, EGL_HEIGHT, (EGLint*)&buffer->size.h);
-   wlc_context_query_buffer(ectx, buffer->legacy_buffer, EGL_WAYLAND_Y_INVERTED_WL, (EGLint*)&buffer->y_inverted);
+   struct wlc_egl_query_buffer_data qdata;
+   qdata.id.identifier = BACKEND_IDENTIFIER_EGL;
+   qdata.attribute = EGL_WIDTH;
+   qdata.value = (EGLint*)&buffer->size.w;   
+   wlc_context_query_buffer(ectx, buffer->legacy_buffer, &qdata.id);
+   qdata.attribute = EGL_HEIGHT;
+   qdata.value = (EGLint*)&buffer->size.h;
+   wlc_context_query_buffer(ectx, buffer->legacy_buffer, &qdata.id);
+   qdata.attribute = EGL_WAYLAND_Y_INVERTED_WL;
+   qdata.value = (EGLint*)&buffer->y_inverted;
+   wlc_context_query_buffer(ectx, buffer->legacy_buffer, &qdata.id);
 
    GLuint num_planes;
    GLenum target = GL_TEXTURE_2D;
@@ -616,9 +629,17 @@ egl_attach(struct ctx *context, struct wlc_context *ectx, struct wlc_surface *su
    surface_flush_images(ectx, surface);
    surface_gen_textures(surface, num_planes);
 
+   struct wlc_egl_create_image_data cdata;
+   cdata.id.identifier = BACKEND_IDENTIFIER_EGL;
+
    for (GLuint i = 0; i < num_planes; ++i) {
       EGLint attribs[] = { EGL_WAYLAND_PLANE_WL, i, EGL_NONE };
-      if (!(surface->images[i] = wlc_context_create_image(ectx, EGL_WAYLAND_BUFFER_WL, buffer->legacy_buffer, attribs)))
+      
+      cdata.target = EGL_WAYLAND_BUFFER_WL;
+      cdata.buffer = buffer->legacy_buffer;
+      cdata.attrib_list = attribs; 
+      
+      if (!(surface->images[i] = wlc_context_create_image(ectx, &cdata.id)))
          return false;
 
       GL_CALL(glActiveTexture(GL_TEXTURE0 + i));
@@ -642,11 +663,15 @@ surface_attach(struct ctx *context, struct wlc_context *bound, struct wlc_surfac
 
    EGLint format;
    bool attached = false;
+   struct wlc_egl_query_buffer_data qdata;
+   qdata.id.identifier = BACKEND_IDENTIFIER_EGL;
+   qdata.attribute = EGL_TEXTURE_FORMAT;
+   qdata.value = &format;
 
    struct wl_shm_buffer *shm_buffer = wl_shm_buffer_get(wl_buffer);
    if (shm_buffer) {
       attached = shm_attach(surface, buffer, shm_buffer);
-   } else if (wlc_context_query_buffer(bound, (void*)wl_buffer, EGL_TEXTURE_FORMAT, &format)) {
+   } else if (wlc_context_query_buffer(bound, (void*)wl_buffer, &qdata.id)) {
       attached = egl_attach(context, bound, surface, buffer, format);
    } else {
       /* unknown buffer */
@@ -885,14 +910,17 @@ terminate(struct ctx *context)
    free(context);
 }
 
-void*
-wlc_gles2(struct wlc_render_api *api)
+bool
+wlc_gles2(struct wlc_render *render, struct wlc_context *context)
 {
-   assert(api);
+   assert(render && context);
+   memset(render, 0, sizeof(struct wlc_render));
+      
+   struct wlc_render_api *api = &render->api;
 
    struct ctx *ctx;
    if (!(ctx = create_context()))
-      return NULL;
+      return false;
 
    api->renderer_type = WLC_RENDERER_GLES2;
    api->terminate = terminate;
@@ -911,7 +939,10 @@ wlc_gles2(struct wlc_render_api *api)
    chck_cstr_to_bool(getenv("WLC_DRAW_INPUT"), &DRAW_INPUT);
 
    wlc_log(WLC_LOG_INFO, "GLES2 renderer initialized");
-   return ctx;
+   
+   render->render = ctx;
+   
+   return true;
 }
 
 // 0 == black, 1 == white, 2 == transparent

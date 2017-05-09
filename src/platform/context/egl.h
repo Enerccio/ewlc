@@ -3,12 +3,8 @@
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
-
-struct wlc_context_api;
-struct wlc_backend_surface;
+#include <wlc/wlc-context-egl.h>
 
 EGLDeviceEXT get_egl_device(void);
-
-void* wlc_egl(struct wlc_backend_surface *bsurface, struct wlc_context_api *api);
 
 #endif /* _WLC_EGL_H_ */
