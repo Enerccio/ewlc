@@ -114,13 +114,13 @@ add_library(wlc-object OBJECT ${sources})
 add_dependencies(wlc-object wlc-protos)
 
 if (WLC_BUILD_STATIC)
-   add_library(wlc STATIC $<TARGET_OBJECTS:wlc-object>)
+   add_library(ewlc STATIC $<TARGET_OBJECTS:wlc-object>)
 else ()
    add_definitions(-DWLC_BUILD_SHARED)
-   add_library(wlc SHARED $<TARGET_OBJECTS:wlc-object>)
+   add_library(ewlc SHARED $<TARGET_OBJECTS:wlc-object>)
 endif ()
 
-target_link_libraries(wlc
+target_link_libraries(ewlc
    PRIVATE
    wlc-protos
    ${CHCK_LIBRARIES}
@@ -161,17 +161,18 @@ target_link_libraries(wlc-tests
 # Parse soversion
 string(REGEX MATCHALL "[0-9]+" VERSION_COMPONENTS ${PROJECT_VERSION})
 list(GET VERSION_COMPONENTS 0 SOVERSION)
-set_target_properties(wlc PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${SOVERSION})
+set_target_properties(ewlc PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${SOVERSION})
 
 # Set helpful variables for add_subdirectory build
-set(WLC_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include" ${XKBCOMMON_INCLUDE_DIRS} ${LIBINPUT_INCLUDE_DIRS} CACHE STRING "Include directories of wlc" FORCE)
-set(WLC_LIBRARIES wlc ${XKBCOMMON_LIBRARIES} ${LIBINPUT_LIBRARIES} CACHE STRING "Libraries needed for wlc" FORCE)
+set(WLC_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include" ${XKBCOMMON_INCLUDE_DIRS} ${LIBINPUT_INCLUDE_DIRS} CACHE STRING 
+"Include directories of ewlc" FORCE)
+set(WLC_LIBRARIES ewlc ${XKBCOMMON_LIBRARIES} ${LIBINPUT_LIBRARIES} CACHE STRING "Libraries needed for ewlc" FORCE)
 mark_as_advanced(WLC_DEFINITIONS WLC_INCLUDE_DIRS WLC_LIBRARIES)
 
 # Add pkgconfig
-configure_file(wlc.pc.in wlc.pc @ONLY)
+configure_file(ewlc.pc.in ewlc.pc @ONLY)
 
 # Install rules
-install(TARGETS wlc DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+install(TARGETS ewlc DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/wlc" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/wlc.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/ewlc.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
