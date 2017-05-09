@@ -36,4 +36,9 @@ struct wlc_render {
    struct wlc_render_api api;
 };
 
+typedef bool (*wlc_renderer_constructor)(struct wlc_render *render, struct wlc_context *context);
+
+bool wlc_output_push_renderer_constructor(wlc_handle handle, wlc_renderer_constructor constructor);
+
+
 #endif /* _WLC_RENDERER_H_ */

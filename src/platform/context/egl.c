@@ -601,14 +601,17 @@ destroy_image(struct ctx *context, struct wlc_destroy_image_data *data)
    return EGL_FALSE;
 }
 
-void*
-wlc_egl(struct wlc_backend_surface *bsurface, struct wlc_context_api *api)
+bool 
+wlc_egl(struct wlc_context *context, struct wlc_backend_surface *bsurface) 
 {
-   assert(bsurface && api);
-
-   struct ctx *context;
-   if (!(context = create_context(bsurface)))
-      return NULL;
+   assert(context && bsurface);
+   memset(context, 0, sizeof(struct wlc_context));
+   
+   struct wlc_context_api *api = &context->api;
+   
+   struct ctx *ctx;
+   if (!(ctx = create_context(bsurface)))
+      return false;
 
    api->terminate = terminate;
    api->bind = bind;
@@ -618,5 +621,8 @@ wlc_egl(struct wlc_backend_surface *bsurface, struct wlc_context_api *api)
    api->destroy_image = destroy_image;
    api->create_image = create_image;
    api->query_buffer = query_buffer;
-   return context;
+   
+   context->context = ctx;
+   
+   return true;
 }

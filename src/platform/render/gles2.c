@@ -910,14 +910,17 @@ terminate(struct ctx *context)
    free(context);
 }
 
-void*
-wlc_gles2(struct wlc_render_api *api)
+bool
+wlc_gles2(struct wlc_render *render, struct wlc_context *context)
 {
-   assert(api);
+   assert(render && context);
+   memset(render, 0, sizeof(struct wlc_render));
+      
+   struct wlc_render_api *api = &render->api;
 
    struct ctx *ctx;
    if (!(ctx = create_context()))
-      return NULL;
+      return false;
 
    api->renderer_type = WLC_RENDERER_GLES2;
    api->terminate = terminate;
@@ -936,7 +939,10 @@ wlc_gles2(struct wlc_render_api *api)
    chck_cstr_to_bool(getenv("WLC_DRAW_INPUT"), &DRAW_INPUT);
 
    wlc_log(WLC_LOG_INFO, "GLES2 renderer initialized");
-   return ctx;
+   
+   render->render = ctx;
+   
+   return true;
 }
 
 // 0 == black, 1 == white, 2 == transparent

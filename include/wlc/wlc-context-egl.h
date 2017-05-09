@@ -1,7 +1,7 @@
-#ifndef _WLC_BACKEND_EGL_H_
-#define _WLC_BACKEND_EGL_H_
+#ifndef _WLC_API_CONTEXT_EGL_H
+#define _WLC_API_CONTEXT_EGL_H
 
-#include <wlc/wlc-backend.h>
+#include <wlc/wlc-context.h>
 
 #define BACKEND_IDENTIFIER_EGL ("egl")
 
@@ -23,4 +23,13 @@ struct wlc_egl_destroy_image_data {
    EGLImageKHR image;
 };
 
-#endif /* _WLC_BACKEND_EGL_H_ */
+struct wlc_context_api;
+struct wlc_backend_surface;
+
+/** 
+ * Exposed constructor 
+ * You can call it manually from your constructor, should you decide to extend the api.
+ **/
+bool wlc_egl(struct wlc_context *context, struct wlc_backend_surface *surface);
+
+#endif /* _WLC_API_CONTEXT_EGL_H */

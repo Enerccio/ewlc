@@ -61,7 +61,8 @@ void wlc_surface_flush_frame_callbacks_for_output(wlc_resource surface, wlc_hand
 /** Enabled renderers */
 enum wlc_renderer {
     WLC_RENDERER_GLES2,
-    WLC_NO_RENDERER
+    WLC_NO_RENDERER,
+    WLC_RENDERER_CUSTOM
 };
 
 /** Returns currently active renderer on the given output */

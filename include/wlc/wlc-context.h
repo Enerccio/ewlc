@@ -1,5 +1,5 @@
-#ifndef _WLC_API_BACKEND_H_
-#define _WLC_API_BACKEND_H_
+#ifndef _WLC_API_CONTEXT_H_
+#define _WLC_API_CONTEXT_H_
 
 #include <stdbool.h>
 #include <wlc/defines.h>
@@ -35,4 +35,13 @@ struct wlc_context_api {
    WLC_NONULL bool (*destroy_image)(struct ctx *context, struct wlc_destroy_image_data* data);
 };
 
-#endif /* _WLC_API_BACKEND_H_ */
+struct wlc_context {
+   void *context; // internal surface context (EGL, etc)
+   struct wlc_context_api api;
+};
+
+typedef bool (*wlc_context_constructor)(struct wlc_context *context, struct wlc_backend_surface *surface);
+
+bool wlc_output_push_context_constructor(wlc_handle handle, wlc_context_constructor constructor);
+
+#endif /* _WLC_API_CONTEXT_H_ */

@@ -95,22 +95,11 @@ wlc_context_release(struct wlc_context *context)
    memset(context, 0, sizeof(struct wlc_context));
 }
 
-bool
-wlc_context(struct wlc_context *context, struct wlc_backend_surface *surface)
+bool 
+wlc_context_empty(struct wlc_context *context, struct wlc_backend_surface *bsurface)
 {
-   assert(surface);
+   assert(context && bsurface);
    memset(context, 0, sizeof(struct wlc_context));
-
-   void* (*constructor[])(struct wlc_backend_surface*, struct wlc_context_api*) = {
-      wlc_egl,
-      NULL
-   };
-
-   for (uint32_t i = 0; constructor[i]; ++i) {
-      if ((context->context = constructor[i](surface, &context->api)))
-         return true;
-   }
-
-   wlc_log(WLC_LOG_WARN, "Could not initialize any context");
-   return false;
+   wlc_log(WLC_LOG_WARN, "Initialized empty context");
+   return true;
 }

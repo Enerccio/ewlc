@@ -7,7 +7,9 @@
 #include <chck/pool/pool.h>
 #include "platform/backend/backend.h"
 #include "platform/context/context.h"
+#include "platform/context/egl.h"
 #include "platform/render/render.h"
+#include "platform/render/gles2.h"
 #include "resources/resources.h"
 #include "internal.h"
 
@@ -44,6 +46,10 @@ struct wlc_output {
    struct wlc_size mode, resolution, virtual;
    struct wlc_output_information information;
    struct wlc_backend_surface bsurface;
+   
+   struct chck_iter_pool context_constructors;
+   struct chck_iter_pool renderer_constructors;
+   
    struct wlc_context context;
    struct wlc_render render;
 
@@ -117,5 +123,9 @@ wlc_handle* wlc_output_get_mutable_views_ptr(struct wlc_output *output, size_t *
 /** for wlc-render.h */
 WLC_NONULL void wlc_output_render_surface(struct wlc_output *output, struct wlc_surface *surface, const struct wlc_geometry *geometry, struct chck_iter_pool *callbacks);
 struct wlc_output* wlc_get_rendering_output(void);
+
+/** constructors */
+WLC_NONULL bool wlc_output_push_context_constructor_ptr(struct wlc_output *output, wlc_context_constructor constructor);
+WLC_NONULL bool wlc_output_push_renderer_constructor_ptr(struct wlc_output *output, wlc_renderer_constructor constructor);
 
 #endif /* _WLC_OUTPUT_H_ */
