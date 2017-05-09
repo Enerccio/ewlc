@@ -41,7 +41,7 @@ find_package(Pixman REQUIRED)
 find_package(XKBCommon REQUIRED)
 find_package(Udev REQUIRED)
 find_package(LibInput REQUIRED)
-find_package(WaylandProtocols REQUIRED)
+find_package(WaylandProtocols)
 
 if (WLC_X11_SUPPORT)
     find_package(X11 REQUIRED COMPONENTS X11-xcb Xfixes)
