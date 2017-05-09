@@ -1,5 +1,4 @@
-.. |build| image:: http://build.cloudef.pw/build/wlc/master/linux%20x86_64/current/status.svg
-.. _build: http://build.cloudef.pw/build/wlc/master/linux%20x86_64
+This is a fork of https://github.com/Cloudef/wlc which was done due to the fact that wlc will be abandoned in the near future when sway will finish their replacement.
 
 :IRC: #orbment @ freenode
 :Build: |build|_
@@ -189,7 +188,6 @@ BINDINGS
 - `go-wlc <https://github.com/mikkeloscar/go-wlc>`_ - Go
 - `rust-wlc <https://github.com/Immington-Industries/rust-wlc>`_ - Rust
 - `wlc.rs <https://github.com/Drakulix/wlc.rs>`_ - Rust
-- `jwlc <https://github.com/Enerccio/jwlc>`_ - Java - work in progress
 
 SOFTWARE USING WLC
 ------------------
