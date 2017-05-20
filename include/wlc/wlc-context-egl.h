@@ -1,6 +1,10 @@
 #ifndef _WLC_API_CONTEXT_EGL_H
 #define _WLC_API_CONTEXT_EGL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <wlc/wlc-context.h>
 
 #define BACKEND_IDENTIFIER_EGL ("egl")
@@ -31,5 +35,9 @@ struct wlc_backend_surface;
  * You can call it manually from your constructor, should you decide to extend the api.
  **/
 bool wlc_egl(struct wlc_context *context, struct wlc_backend_surface *surface);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _WLC_API_CONTEXT_EGL_H */

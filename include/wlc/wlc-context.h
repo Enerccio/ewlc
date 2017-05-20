@@ -1,6 +1,10 @@
 #ifndef _WLC_API_CONTEXT_H_
 #define _WLC_API_CONTEXT_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <wlc/defines.h>
 #include <wlc/geometry.h>
@@ -43,5 +47,9 @@ struct wlc_context {
 typedef bool (*wlc_context_constructor)(struct wlc_context *context, struct wlc_backend_surface *surface);
 
 bool wlc_output_push_context_constructor(wlc_handle handle, wlc_context_constructor constructor);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _WLC_API_CONTEXT_H_ */

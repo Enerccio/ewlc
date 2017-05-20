@@ -1,6 +1,10 @@
 #ifndef _WLC_RENDERER_H_
 #define _WLC_RENDERER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <wlc/wlc-render.h>
@@ -40,5 +44,8 @@ typedef bool (*wlc_renderer_constructor)(struct wlc_render *render, struct wlc_c
 
 bool wlc_output_push_renderer_constructor(wlc_handle handle, wlc_renderer_constructor constructor);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _WLC_RENDERER_H_ */
