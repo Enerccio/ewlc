@@ -46,7 +46,6 @@ static const struct wlc_geometry wlc_geometry_zero = { { 0, 0 }, { 0, 0 } };
 WLC_NONULL static inline void
 wlc_point_min(const struct wlc_point *a, const struct wlc_point *b, struct wlc_point *out)
 {
-   assert(a && b && out);
    out->x = MIN(a->x, b->x);
    out->y = MIN(a->y, b->y);
 }
@@ -54,7 +53,6 @@ wlc_point_min(const struct wlc_point *a, const struct wlc_point *b, struct wlc_p
 WLC_NONULL static inline void
 wlc_point_max(const struct wlc_point *a, const struct wlc_point *b, struct wlc_point *out)
 {
-   assert(a && b && out);
    out->x = MAX(a->x, b->x);
    out->y = MAX(a->y, b->y);
 }
@@ -62,7 +60,6 @@ wlc_point_max(const struct wlc_point *a, const struct wlc_point *b, struct wlc_p
 WLC_NONULL static inline void
 wlc_size_min(const struct wlc_size *a, const struct wlc_size *b, struct wlc_size *out)
 {
-   assert(a && b && out);
    out->w = MIN(a->w, b->w);
    out->h = MIN(a->h, b->h);
 }
@@ -70,7 +67,6 @@ wlc_size_min(const struct wlc_size *a, const struct wlc_size *b, struct wlc_size
 WLC_NONULL static inline void
 wlc_size_max(const struct wlc_size *a, const struct wlc_size *b, struct wlc_size *out)
 {
-   assert(a && b && out);
    out->w = MAX(a->w, b->w);
    out->h = MAX(a->h, b->h);
 }
@@ -78,28 +74,24 @@ wlc_size_max(const struct wlc_size *a, const struct wlc_size *b, struct wlc_size
 WLC_NONULL WLC_PURE static inline bool
 wlc_point_equals(const struct wlc_point *a, const struct wlc_point *b)
 {
-   assert(a && b);
    return !memcmp(a, b, sizeof(struct wlc_point));
 }
 
 WLC_NONULL WLC_PURE static inline bool
 wlc_size_equals(const struct wlc_size *a, const struct wlc_size *b)
 {
-   assert(a && b);
    return !memcmp(a, b, sizeof(struct wlc_size));
 }
 
 WLC_NONULL WLC_PURE static inline bool
 wlc_geometry_equals(const struct wlc_geometry *a, const struct wlc_geometry *b)
 {
-   assert(a && b);
    return !memcmp(a, b, sizeof(struct wlc_geometry));
 }
 
 WLC_NONULL WLC_PURE static inline bool
 wlc_geometry_contains(const struct wlc_geometry *a, const struct wlc_geometry *b)
 {
-   assert(a && b);
    return (a->origin.x <= b->origin.x && a->origin.y <= b->origin.y &&
            a->origin.x + (int32_t)a->size.w >= b->origin.x + (int32_t)b->size.w && a->origin.y + (int32_t)a->size.h >= b->origin.y + (int32_t)b->size.h);
 }

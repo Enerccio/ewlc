@@ -9,6 +9,8 @@
 #include <assert.h>
 #include <wayland-server.h>
 #include <wayland-util.h>
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
 #include "internal.h"
 #include "macros.h"
 #include "x11.h"

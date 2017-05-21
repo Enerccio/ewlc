@@ -9,7 +9,9 @@ FEATURES
 +------------------+-----------------------+
 | Backends         | DRM, X11, Wayland     |
 +------------------+-----------------------+
-| Renderers        | EGL, GLESv2           |
+| Contexts         | EGL, Custom           |
++------------------+-----------------------+
+| Renderers        | GLESv2, Custom        |
 +------------------+-----------------------+
 | Buffer API       | GBM, EGL streams      |
 +------------------+-----------------------+
@@ -115,6 +117,12 @@ BUFFER API
 - ``EGL`` is only supported by the NVIDIA proprietary. If you have a NVIDIA GPU using the proprietary driver you need to enable DRM KMS using the ``nvidia-drm.modeset=1`` kernel parameter.
 
 You can force a given buffer API by setting the ``WLC_BUFFER_API`` environment variable to ``GBM`` or ``EGL``.
+
+CUSTOM CONTEXT/RENDERER
+-----------------------
+You can set up your own context and renderer by creating constructor functions for both that set up context and renderer. Don't forget to set up renderer as ``WLC_RENDERER_CUSTOM``. Use ``wlc_output_push_context_constructor`` and ``wlc_output_push_renderer_constructor`` to push your constructors to the top of the constructor stack (stack contains egl, no context/gles no renderer respectivelly and topmost constructor that returns true is used) for specified output.
+
+Check ``platform/context/egl.c`` and ``platform/render/gles2.c`` for implementation.
 
 ISSUES
 ------
