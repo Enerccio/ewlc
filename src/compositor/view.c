@@ -47,6 +47,7 @@ configure_view(struct wlc_view *view, uint32_t edges, const struct wlc_geometry 
    if (view->xdg_toplevel && (r = wl_resource_from_wlc_resource(view->xdg_toplevel, "xdg-toplevel"))) {
       struct wl_array states = { .size = view->wl_state.items.used, .alloc = view->wl_state.items.allocated, .data = view->wl_state.items.buffer };
       zxdg_toplevel_v6_send_configure(r, g->size.w, g->size.h, &states);
+      view->data.props = WLC_VIEW_PROPERTIES_ALL;
    } else if (view->xdg_popup && (r = wl_resource_from_wlc_resource(view->xdg_popup, "xdg-popup"))) {
       struct wlc_xdg_popup *xdg_popup = convert_from_wlc_resource(view->xdg_popup, "xdg-popup");
       struct wlc_size size = g->size;
@@ -55,8 +56,10 @@ configure_view(struct wlc_view *view, uint32_t edges, const struct wlc_geometry 
          size = xdg_popup->xdg_positioner->size;
       
       zxdg_popup_v6_send_configure(r, g->origin.x, g->origin.y, size.w, size.h);
+      view->data.props = WLC_VIEW_PROPERTIES_ALL;
    } else if (view->shell_surface && (r = wl_resource_from_wlc_resource(view->shell_surface, "shell-surface"))) {
       wl_shell_surface_send_configure(r, edges, g->size.w, g->size.h);
+      view->data.props = WLC_VIEW_PROPERTIES_ALL;
    } else if (is_x11_view(view)) {
       wlc_x11_window_configure(&view->x11, g);
    }
@@ -714,6 +717,19 @@ wlc_view_get_type(wlc_handle view)
    return (ptr ? *(uint32_t*)ptr : 0);
 }
 
+WLC_API bool
+wlc_x11_view_is_deletable(wlc_handle view)
+{
+#ifdef ENABLE_XWAYLAND
+   struct wlc_view *v = convert_from_wlc_handle(view, "view");
+   if (!is_x11_view(v))
+      return false;
+   return v->x11.has_delete_window;
+#else
+   return false;
+#endif
+}
+
 WLC_API void
 wlc_view_set_type(wlc_handle view, enum wlc_view_type_bit type, bool toggle)
 {
@@ -824,4 +840,36 @@ wlc_view(struct wlc_view *view)
    assert(view);
    assert(!view->state.created);
    return chck_iter_pool(&view->wl_state, 8, 0, sizeof(uint32_t));
+}
+
+WLC_API enum wlc_x11_window_type 
+wlc_view_x11_get_type(wlc_handle handle) {
+   struct wlc_view *view;
+   if(!(view = convert_from_wlc_handle(handle, "view")))
+      return WLC_BIT_X11_WINTYPE_INVALID;
+   return wlc_view_x11_get_type_ptr(view);
+}
+
+enum wlc_x11_window_type 
+wlc_view_x11_get_type_ptr(struct wlc_view *view) {
+   assert(view);
+   if (!(is_x11_view(view))) {
+      return WLC_BIT_X11_WINTYPE_INVALID;
+   }
+   return view->x11.window_type;
+}
+
+WLC_API enum wlc_view_properties 
+wlc_view_get_properties(wlc_handle handle) {
+   struct wlc_view *view;
+   if(!(view = convert_from_wlc_handle(handle, "view")))
+      return 0;
+   return wlc_view_get_properties_ptr(view);
+}
+
+
+enum wlc_view_properties 
+wlc_view_get_properties_ptr(struct wlc_view *view) {
+   assert(view);
+   return view->data.props;
 }

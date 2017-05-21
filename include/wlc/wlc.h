@@ -56,6 +56,8 @@ enum wlc_view_type_bit {
    WLC_BIT_SPLASH = 1<<2, // Splash screens (x11)
    WLC_BIT_MODAL = 1<<3, // Modal windows (x11)
    WLC_BIT_POPUP = 1<<4, // xdg-shell, wl-shell popups
+   WLC_BIT_X11 = 1<<5, // Any x11 window
+   WLC_BIT_BORDERLESS = 1<<6, // Borderless (undecorated) window (x11)
 };
 
 /** wlc_set_view_properties_updated_cb(); */
@@ -154,6 +156,33 @@ enum wlc_positioner_constraint_adjustment_bit {
    WLC_BIT_CONSTRAINT_ADJUSTMENT_RESIZE_Y = 1<<5
 };
 
+/** x11 window type */
+enum wlc_x11_window_type {
+   WLC_BIT_X11_WINTYPE_INVALID = 0,
+   WLC_BIT_X11_WINTYPE_DOCK = 1<<1,
+   WLC_BIT_X11_WINTYPE_TOOLBAR = 1<<2,
+   WLC_BIT_X11_WINTYPE_MENU = 1<<3,
+   WLC_BIT_X11_WINTYPE_UTILITY = 1<<4,
+   WLC_BIT_X11_WINTYPE_SPLASH = 1<<5,
+   WLC_BIT_X11_WINTYPE_DIALOG = 1<<6,
+   WLC_BIT_X11_WINTYPE_NORMAL = 1<<7,
+   WLC_BIT_X11_WINTYPE_DESKTOP = 1<<8
+};
+
+enum wlc_view_properties {
+   WLC_BIT_PROP_CLOSEABLE = 1<<0, // view can be closed
+   WLC_BIT_PROP_RESIZEABLE = 1<<1, // view can be resized
+   WLC_BIT_PROP_MINIMIZABLE = 1<<2, // view can be minimized
+   WLC_BIT_PROP_MAXIMIZABLE = 1<<3, // view can be maximized
+   WLC_BIT_PROP_MOVEABLE = 1<<4, // view can be moved
+   WLC_BIT_PROP_HAS_TITLE = 1<<5, // view has title 
+};
+
+#define WLC_VIEW_PROPERTIES_ALL \
+   (WLC_BIT_PROP_CLOSEABLE | WLC_BIT_PROP_RESIZEABLE | \
+    WLC_BIT_PROP_MINIMIZABLE | WLC_BIT_PROP_MAXIMIZABLE | \
+    WLC_BIT_PROP_MOVEABLE | WLC_BIT_PROP_HAS_TITLE)
+
 /** State of keyboard modifiers in various functions. */
 struct wlc_modifiers {
    uint32_t leds, mods;
@@ -172,6 +201,9 @@ void wlc_set_output_focus_cb(void (*cb)(wlc_handle output, bool focus));
 
 /** Output resolution changed. */
 void wlc_set_output_resolution_cb(void (*cb)(wlc_handle output, const struct wlc_size *from, const struct wlc_size *to));
+
+/** Output repaint callback. Return true to cancel internal wlc repaint. */
+void wlc_set_output_repaint_cb(bool (*cb)(wlc_handle output));
 
 /** Output pre render hook. */
 void wlc_set_output_render_pre_cb(void (*cb)(wlc_handle output));
@@ -396,6 +428,13 @@ uint32_t wlc_view_get_mask(wlc_handle view);
 /** Set visibility bitmask. */
 void wlc_view_set_mask(wlc_handle view, uint32_t mask);
 
+/**
+ * Returs view properties.
+ * For wayland created views, it is equal to WLC_VIEW_PROPERTIES_ALL
+ * For x11, motif is queried and properties are set up based on it
+ */
+enum wlc_view_properties wlc_view_get_properties(wlc_handle view);
+
 /** Get current geometry. (what client sees) */
 const struct wlc_geometry* wlc_view_get_geometry(wlc_handle view);
 
@@ -447,6 +486,26 @@ WLC_NONULL void wlc_view_set_geometry(wlc_handle view, uint32_t edges, const str
 
 /** Get type bitfield. */
 uint32_t wlc_view_get_type(wlc_handle view);
+
+/**
+ * Returns true if xwayland window is deletable (support WM_DELETE_WINDOW protocol).
+ * This kind of window should be closed using wlc_x11_delete_window.
+ * If window is not xwayland, returns false.
+ */
+bool wlc_x11_view_is_deletable(wlc_handle view);
+
+/**
+ * Asks xwayland window to close gracefully.
+ */
+void wlc_x11_window_delete(uint32_t window);
+
+/**
+ * Kills xwayland window unconditionally.
+ */
+void wlc_x11_window_kill(uint32_t window);
+
+/** returns type of this x11 view, or invalid if not x11 view */
+enum wlc_x11_window_type wlc_view_x11_get_type(wlc_handle view);
 
 /** Set type bit. Toggle indicates whether it is set or not. */
 void wlc_view_set_type(wlc_handle view, enum wlc_view_type_bit type, bool toggle);
@@ -508,6 +567,9 @@ void wlc_pointer_get_position(struct wlc_point *out_position);
 
 /** Set current pointer position. */
 void wlc_pointer_set_position(const struct wlc_point *position);
+
+/** Get current pointer tip */
+void wlc_pointer_get_tip(struct wlc_point *position);
 
 #ifdef __cplusplus
 }

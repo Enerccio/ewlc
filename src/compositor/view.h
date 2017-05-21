@@ -53,6 +53,7 @@ struct wlc_view {
       pid_t pid;
       enum wl_shell_surface_fullscreen_method fullscreen_mode;
       bool minimized;
+      enum wlc_view_properties props;
    } data;
 
    uint32_t type;
@@ -106,5 +107,7 @@ void wlc_view_set_class_ptr(struct wlc_view *view, const char *class_, size_t le
 void wlc_view_set_app_id_ptr(struct wlc_view *view, const char *app_id);
 void wlc_view_set_pid_ptr(struct wlc_view *view, pid_t pid);
 bool wlc_view_is_minimized_ptr(struct wlc_view *view);
+enum wlc_x11_window_type wlc_view_x11_get_type_ptr(struct wlc_view *view);
+enum wlc_view_properties wlc_view_get_properties_ptr(struct wlc_view *view);
 
 #endif /* _WLC_VIEW_H_ */

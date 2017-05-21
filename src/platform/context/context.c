@@ -15,38 +15,37 @@ wlc_context_get_proc_address(struct wlc_context *context, const char *procname)
 
    return context->api.get_proc_address(context->context, procname);
 }
-
-EGLBoolean
-wlc_context_query_buffer(struct wlc_context *context, struct wl_resource *buffer, EGLint attribute, EGLint *value)
+bool
+wlc_context_query_buffer(struct wlc_context *context, struct wl_resource *buffer, struct wlc_query_buffer_data *data)
 {
-   assert(context && buffer);
+   assert(context && buffer && data);
 
    if (!context->api.query_buffer)
-      return EGL_FALSE;
+      return false;
 
-   return context->api.query_buffer(context->context, buffer, attribute, value);
+   return context->api.query_buffer(context->context, buffer, data);
 }
 
-EGLImageKHR
-wlc_context_create_image(struct wlc_context *context, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list)
+void*
+wlc_context_create_image(struct wlc_context *context, struct wlc_create_image_data *data)
 {
-   assert(context && buffer);
+   assert(context && data);
 
    if (!context->api.create_image)
       return 0;
 
-   return context->api.create_image(context->context, target, buffer, attrib_list);
+   return context->api.create_image(context->context, data);
 }
 
-EGLBoolean
-wlc_context_destroy_image(struct wlc_context *context, EGLImageKHR image)
+bool
+wlc_context_destroy_image(struct wlc_context *context, struct wlc_destroy_image_data* data)
 {
-   assert(context && image);
+   assert(context && data);
 
    if (!context->api.destroy_image)
-      return EGL_FALSE;
+      return false;
 
-   return context->api.destroy_image(context->context, image);
+   return context->api.destroy_image(context->context, data);
 }
 
 bool
@@ -96,22 +95,11 @@ wlc_context_release(struct wlc_context *context)
    memset(context, 0, sizeof(struct wlc_context));
 }
 
-bool
-wlc_context(struct wlc_context *context, struct wlc_backend_surface *surface)
+bool 
+wlc_context_empty(struct wlc_context *context, struct wlc_backend_surface *bsurface)
 {
-   assert(surface);
+   assert(context && bsurface);
    memset(context, 0, sizeof(struct wlc_context));
-
-   void* (*constructor[])(struct wlc_backend_surface*, struct wlc_context_api*) = {
-      wlc_egl,
-      NULL
-   };
-
-   for (uint32_t i = 0; constructor[i]; ++i) {
-      if ((context->context = constructor[i](surface, &context->api)))
-         return true;
-   }
-
-   wlc_log(WLC_LOG_WARN, "Could not initialize any context");
-   return false;
+   wlc_log(WLC_LOG_WARN, "Initialized empty context");
+   return true;
 }

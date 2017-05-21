@@ -321,9 +321,9 @@ repaint(struct wlc_output *output)
       finish_frame_tasks(output);
       return false;
    }
-
+   
    wlc_render_resolution(&output->render, &output->context, &output->mode, &output->virtual, output->scale);
-
+   
    if (output->state.sleeping) {
       // fake sleep
       wlc_render_clear(&output->render, &output->context);
@@ -332,37 +332,45 @@ repaint(struct wlc_output *output)
       wlc_dlog(WLC_DBG_RENDER_LOOP, "-> Repaint");
       return true;
    }
-
-   const bool bg_visible = get_visible_views(output, &output->visible);
-
-   if (!output->state.background_visible && bg_visible) {
-      wlc_dlog(WLC_DBG_RENDER_LOOP, "-> Background visible");
-      output->state.background_visible = true;
-   } else if (output->state.background_visible && !bg_visible) {
-      wlc_dlog(WLC_DBG_RENDER_LOOP, "-> Background not visible");
-      output->state.background_visible = false;
-   }
-
+   
    rendering_output = output;
-   wlc_render_clear(&output->render, &output->context);
+   
+   bool skip_render = false;
+   if (wlc_interface()->output.render.repaint)
+      skip_render = wlc_interface()->output.render.repaint(convert_to_wlc_handle(output));
 
-   if (output->state.background_visible) {
-      WLC_INTERFACE_EMIT(output.render.pre, convert_to_wlc_handle(output));
+   if (!skip_render) {
+
+      const bool bg_visible = get_visible_views(output, &output->visible);
+
+      if (!output->state.background_visible && bg_visible) {
+         wlc_dlog(WLC_DBG_RENDER_LOOP, "-> Background visible");
+         output->state.background_visible = true;
+      } else if (output->state.background_visible && !bg_visible) {
+         wlc_dlog(WLC_DBG_RENDER_LOOP, "-> Background not visible");
+         output->state.background_visible = false;
+      }
+
+      wlc_render_clear(&output->render, &output->context);
+
+      if (output->state.background_visible) {
+         WLC_INTERFACE_EMIT(output.render.pre, convert_to_wlc_handle(output));
+         wlc_render_flush_fakefb(&output->render, &output->context);
+      }
+
+      {
+         struct wlc_view **v;
+         chck_iter_pool_for_each(&output->visible, v)
+            render_view(output, *v, &output->callbacks);
+         chck_iter_pool_flush(&output->visible);
+      }
+
+      WLC_INTERFACE_EMIT(output.render.post, convert_to_wlc_handle(output));
       wlc_render_flush_fakefb(&output->render, &output->context);
+
+      struct wlc_render_event ev = { .output = output, .type = WLC_RENDER_EVENT_POINTER };
+      wl_signal_emit(&wlc_system_signals()->render, &ev);
    }
-
-   {
-      struct wlc_view **v;
-      chck_iter_pool_for_each(&output->visible, v)
-         render_view(output, *v, &output->callbacks);
-      chck_iter_pool_flush(&output->visible);
-   }
-
-   WLC_INTERFACE_EMIT(output.render.post, convert_to_wlc_handle(output));
-   wlc_render_flush_fakefb(&output->render, &output->context);
-
-   struct wlc_render_event ev = { .output = output, .type = WLC_RENDER_EVENT_POINTER };
-   wl_signal_emit(&wlc_system_signals()->render, &ev);
 
    rendering_output = NULL;
 
@@ -563,13 +571,40 @@ wlc_output_set_backend_surface(struct wlc_output *output, struct wlc_backend_sur
    }
 
    if (bsurface) {
-      if (!wlc_context(&output->context, &output->bsurface))
-         goto fail;
+      
+      {
+         wlc_context_constructor *c;
+         chck_iter_pool_for_each_reverse(&output->context_constructors, c) {
+            if ((*c)(&output->context, &output->bsurface)) {
+               goto context_ready;
+            }
+         }
+      }
+      
+      goto fail;
+      
+   context_ready:
 
       wlc_context_bind_to_wl_display(&output->context, wlc_display());
-
-      if (!wlc_render(&output->render, &output->context))
+      
+      if (!wlc_context_bind(&output->context)) {
+         wlc_render_release(&output->render, &output->context);
          goto fail;
+      }
+         
+      {
+         wlc_renderer_constructor *c;
+         chck_iter_pool_for_each_reverse(&output->renderer_constructors, c) {
+            if ((*c)(&output->render, &output->context)) {
+               goto renderer_ready;
+            }
+         }
+      }
+      
+      wlc_render_release(&output->render, &output->context);
+      goto fail;
+         
+   renderer_ready:
 
       {
          wlc_resource *r;
@@ -1017,6 +1052,8 @@ wlc_output_release(struct wlc_output *output)
    chck_iter_pool_release(&output->mutable);
    chck_iter_pool_release(&output->visible);
    chck_iter_pool_release(&output->callbacks);
+   chck_iter_pool_release(&output->context_constructors);
+   chck_iter_pool_release(&output->renderer_constructors);
 
    free(output->blit);
    output->blit = NULL;
@@ -1043,6 +1080,8 @@ wlc_output(struct wlc_output *output)
 
    if (!chck_iter_pool(&output->surfaces, 32, 0, sizeof(wlc_resource)) ||
        !chck_iter_pool(&output->views, 4, 0, sizeof(wlc_handle)) ||
+       !chck_iter_pool(&output->context_constructors, 4, 0, sizeof(wlc_context_constructor)) ||
+       !chck_iter_pool(&output->renderer_constructors, 4, 0, sizeof(wlc_renderer_constructor)) ||
        !chck_iter_pool(&output->mutable, 4, 0, sizeof(wlc_handle)) ||
        !chck_iter_pool(&output->callbacks, 32, 0, sizeof(wlc_resource)) ||
        !chck_iter_pool(&output->visible, 32, 0, sizeof(struct wlc_view*)))
@@ -1054,6 +1093,13 @@ wlc_output(struct wlc_output *output)
 
    wlc_output_set_sleep_ptr(output, false);
    wlc_output_set_mask_ptr(output, (1<<0));
+   
+   wlc_output_push_context_constructor_ptr(output, wlc_context_empty);
+   wlc_output_push_context_constructor_ptr(output, wlc_egl);
+   
+   wlc_output_push_renderer_constructor_ptr(output, wlc_renderer_empty);
+   wlc_output_push_renderer_constructor_ptr(output, wlc_gles2);
+   
    return true;
 
 fail:
@@ -1090,4 +1136,32 @@ wlc_get_rendering_output(void)
    }
 
    return rendering_output;
+}
+
+WLC_API bool 
+wlc_output_push_context_constructor(wlc_handle handle, wlc_context_constructor constructor) 
+{
+   assert(constructor);
+   return wlc_output_push_context_constructor_ptr(convert_from_wlc_handle(handle, "output"), constructor);
+}
+   
+bool 
+wlc_output_push_context_constructor_ptr(struct wlc_output *output, wlc_context_constructor constructor)
+{
+   assert(output && constructor);
+   return chck_iter_pool_push_back(&output->context_constructors, &constructor);
+}
+
+WLC_API bool 
+wlc_output_push_renderer_constructor(wlc_handle handle, wlc_renderer_constructor constructor) 
+{
+   assert(constructor);
+   return wlc_output_push_renderer_constructor_ptr(convert_from_wlc_handle(handle, "output"), constructor);
+}
+   
+bool 
+wlc_output_push_renderer_constructor_ptr(struct wlc_output *output, wlc_renderer_constructor constructor)
+{
+   assert(output && constructor);
+   return chck_iter_pool_push_back(&output->renderer_constructors, &constructor);
 }

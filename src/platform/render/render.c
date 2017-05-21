@@ -131,25 +131,10 @@ wlc_render_release(struct wlc_render *render, struct wlc_context *bound)
 }
 
 bool
-wlc_render(struct wlc_render *render, struct wlc_context *context)
+wlc_renderer_empty(struct wlc_render *render, struct wlc_context *context) 
 {
    assert(render && context);
    memset(render, 0, sizeof(struct wlc_render));
-
-   if (!wlc_context_bind(context))
-      return NULL;
-
-   void* (*constructor[])(struct wlc_render_api*) = {
-      wlc_gles2,
-      NULL
-   };
-
-   for (uint32_t i = 0; constructor[i]; ++i) {
-      if ((render->render = constructor[i](&render->api)))
-         return true;
-   }
-
    wlc_log(WLC_LOG_WARN, "Could not initialize any rendering backend");
-   wlc_render_release(render, context);
    return false;
 }
