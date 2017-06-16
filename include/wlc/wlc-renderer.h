@@ -8,8 +8,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 #include <wlc/wlc-render.h>
-#include "resources/resources.h"
-
+   
 struct wlc_context;
 struct wlc_surface;
 struct wlc_buffer;
