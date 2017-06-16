@@ -910,7 +910,7 @@ terminate(struct ctx *context)
    free(context);
 }
 
-bool
+WLC_API bool
 wlc_gles2(struct wlc_render *render, struct wlc_context *context)
 {
    assert(render && context);
