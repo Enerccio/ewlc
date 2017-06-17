@@ -7,6 +7,7 @@
 #include <wayland-server.h>
 #include <chck/string/string.h>
 #include "internal.h"
+#include "visibility.h"
 #include "gles2.h"
 #include "render.h"
 #include "platform/context/egl.h"
