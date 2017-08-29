@@ -7,6 +7,7 @@
 #include <wayland-server.h>
 #include <chck/string/string.h>
 #include "internal.h"
+#include "visibility.h"
 #include "gles2.h"
 #include "render.h"
 #include "platform/context/egl.h"
@@ -910,7 +911,7 @@ terminate(struct ctx *context)
    free(context);
 }
 
-bool
+WLC_API bool
 wlc_gles2(struct wlc_render *render, struct wlc_context *context)
 {
    assert(render && context);
